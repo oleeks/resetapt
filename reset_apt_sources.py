@@ -42,18 +42,12 @@ class SourcesBase():
             cf = configparser.ConfigParser()
             cf.read(self.os_version_file)
         except FileNotFoundError:
-            print("当前系统不是Deepin社区版、UOS专业版或个人版")
+            print("当前系统不是Deepin社区版、UOS个人版或专业版")
         else:
             return cf.get('Version', 'EditionName')
 
     def get_default_sources(self):
-        try:
-            with open(self.src_sources_list) as src:
-                content = src.read()
-        except FileNotFoundError:
-            print(self.src_sources_list, "文件不存在")
-        else:
-            return content
+        return self.get_sources_content(self.src_sources_list)
 
     def default_sources_should_be(self):
         return ''
@@ -62,6 +56,15 @@ class SourcesBase():
         with open(self.src_sources_list, 'w') as src:
             src.write(self.default_sources_should_be())
             print(self.src_sources_list, "重置成功")
+
+    def get_sources_content(self, src_file):
+        try:
+            with open(src_file) as src:
+                content = src.read()
+        except FileNotFoundError:
+            print(src_file, "文件不存在")
+        else:
+            return content
 
 
 class DefaultSources(SourcesBase):
