@@ -112,6 +112,16 @@ class PrinterSources(SourcesBase):
         super().__init__()
         self.src_file = self.src_printer_list
 
+    def default_sources_should_be(self):
+        if (self.os_edition == self.os_edition_name[0]):
+            return 'deb http://packages.chinauos.com/printer eagle non-free\n'
+        elif (self.os_edition == self.os_edition_name[1]):
+            return 'deb https://home-packages.chinauos.com/printer  eagle non-free\n'
+        elif (self.os_edition == self.os_edition_name[2]):
+            return 'deb https://home-packages.chinauos.com/printer  eagle non-free\n'
+        else:
+            raise Exception('该脚本不适用当前操作系统')
+
 def detect_and_reset(src):
     r1 = src.get_current_sources()
     r2 = src.default_sources_should_be()
@@ -128,7 +138,8 @@ def main():
     detect_and_reset(src_default)
     src_appstore = AppstoreSources()
     detect_and_reset(src_appstore)
-
+    src_printer = PrinterSources()
+    detect_and_reset(src_printer)
     # os.system('apt update -y && apt upgrade -y')
     input('按任意键退出')
 
