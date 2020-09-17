@@ -39,6 +39,7 @@ class SourcesBase():
         self.os_edition_name = ('Community', 'Home', 'Professional')
         self.os_edition = self.get_os_edition_name()
         self.src_file = ''
+        self.reset = False
 
     def get_os_edition_name(self):
         try:
@@ -58,6 +59,7 @@ class SourcesBase():
     def reset_sources_to_default(self):
         with open(self.src_file, 'w') as src:
             src.write(self.default_sources_should_be())
+            self.reset = True
             print(self.src_file, '重置成功')
 
     def get_sources_content(self, src_file):
@@ -142,7 +144,8 @@ def main():
     detect_and_reset(src_appstore)
     src_printer = PrinterSources()
     detect_and_reset(src_printer)
-    # os.system('apt update -y && apt upgrade -y')
+    if (src_default.reset or src_appstore.reset or src_printer.reset):
+        os.system('apt update -y && apt upgrade -y')
     input('按任意键退出')
 
 
