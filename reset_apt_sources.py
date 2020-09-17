@@ -36,6 +36,7 @@ class SourcesBase():
         self.src_printer_list = '/etc/apt/sources.list.d/printer.list'
         self.os_edition_name = ('Community', 'Home', 'Professional')
         self.os_edition = self.get_os_edition_name()
+        self.src_file = ''
 
     def get_os_edition_name(self):
         try:
@@ -46,16 +47,16 @@ class SourcesBase():
         else:
             return cf.get('Version', 'EditionName')
 
-    def get_default_sources(self):
-        return self.get_sources_content(self.src_sources_list)
+    def get_current_sources(self):
+        return self.get_sources_content(self.src_file)
 
     def default_sources_should_be(self):
         return ''
 
-    def reset_default_sources(self):
-        with open(self.src_sources_list, 'w') as src:
+    def reset_sources_to_default(self):
+        with open(self.src_file, 'w') as src:
             src.write(self.default_sources_should_be())
-            print(self.src_sources_list, "重置成功")
+            print(self.src_file, "重置成功")
 
     def get_sources_content(self, src_file):
         try:
@@ -70,6 +71,7 @@ class SourcesBase():
 class DefaultSources(SourcesBase):
     def __init__(self):
         super().__init__()
+        self.src_file = self.src_sources_list
 
     def default_sources_should_be(self):
         if (self.os_edition == self.os_edition_name[0]):
@@ -87,14 +89,27 @@ class DefaultSources(SourcesBase):
         else:
             raise Exception('该脚本不适用当前操作系统')
 
+
+class AppstoreSources(SourcesBase):
+    def __init__(self):
+        super().__init__()
+        self.src_file = self.src_appstore_list
+
+
+class PrinterSources(SourcesBase):
+    def __init__(self):
+        super().__init__()
+        self.src_file = self.src_printer_list
+
+
 def main():
     get_auth()
     src_default = DefaultSources()
-    r1 = src_default.get_default_sources()
+    r1 = src_default.get_current_sources()
     r2 = src_default.default_sources_should_be()
     if (r1 != r2):
         if (user_agree_to_reset(src_default.src_sources_list)):
-            src_default.reset_default_sources()
+            src_default.reset_sources_to_default()
     else:
         msg="默认源" + src_default.src_sources_list + "正常，无需重置。"
         print(msg)
