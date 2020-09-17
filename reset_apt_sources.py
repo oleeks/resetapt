@@ -21,7 +21,7 @@ def get_auth():
 
 
 def user_agree_to_reset(src_file):
-    msg = "源文件" + src_file + "已被修改，是否重置？(Y/n)"
+    msg = "源文件'" + src_file + "'已被修改，是否重置？(Y/n)"
     r = 'Y'
     while (r != 'y' and r != 'n' and r != ''):
         r = input(msg).lower()
@@ -43,7 +43,7 @@ class SourcesBase():
             cf = configparser.ConfigParser()
             cf.read(self.os_version_file)
         except FileNotFoundError:
-            print("当前系统不是Deepin社区版、UOS个人版或专业版")
+            print('当前系统不是Deepin社区版、UOS个人版或专业版')
         else:
             return cf.get('Version', 'EditionName')
 
@@ -56,14 +56,14 @@ class SourcesBase():
     def reset_sources_to_default(self):
         with open(self.src_file, 'w') as src:
             src.write(self.default_sources_should_be())
-            print(self.src_file, "重置成功")
+            print(self.src_file, '重置成功')
 
     def get_sources_content(self, src_file):
         try:
             with open(src_file) as src:
                 content = src.read()
         except FileNotFoundError:
-            print(src_file, "文件不存在")
+            print(src_file, '文件不存在')
         else:
             return content
 
@@ -95,24 +95,39 @@ class AppstoreSources(SourcesBase):
         super().__init__()
         self.src_file = self.src_appstore_list
 
+    def default_sources_should_be(self):
+        if (self.os_edition == self.os_edition_name[0]):
+            return 'deb https://community-store-packages.deepin.com/appstore eagle appstore\n' \
+                '#deb https://store.chinauos.com/appstore eagle appstore\n'
+        elif (self.os_edition == self.os_edition_name[1]):
+            return 'deb https://home-store-packages.chinauos.com/appstore eagle appstore\n'
+        elif (self.os_edition == self.os_edition_name[2]):
+            return 'deb https://home-store-packages.chinauos.com/appstore eagle appstore\n'
+        else:
+            raise Exception('该脚本不适用当前操作系统')
+
 
 class PrinterSources(SourcesBase):
     def __init__(self):
         super().__init__()
         self.src_file = self.src_printer_list
 
+def detect_and_reset(src):
+    r1 = src.get_current_sources()
+    r2 = src.default_sources_should_be()
+    if (r1 != r2):
+        if (user_agree_to_reset(src.src_file)):
+            src.reset_sources_to_default()
+    else:
+        msg = "默认源'" + src.src_file + "'正常，无需重置。"
+        print(msg)
 
 def main():
     get_auth()
     src_default = DefaultSources()
-    r1 = src_default.get_current_sources()
-    r2 = src_default.default_sources_should_be()
-    if (r1 != r2):
-        if (user_agree_to_reset(src_default.src_sources_list)):
-            src_default.reset_sources_to_default()
-    else:
-        msg="默认源" + src_default.src_sources_list + "正常，无需重置。"
-        print(msg)
+    detect_and_reset(src_default)
+    src_appstore = AppstoreSources()
+    detect_and_reset(src_appstore)
 
     # os.system('apt update -y && apt upgrade -y')
     input('按任意键退出')
