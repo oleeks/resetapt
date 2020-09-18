@@ -11,7 +11,6 @@
 import os
 import sys
 import configparser
-from typing import Counter
 
 
 def get_auth():
