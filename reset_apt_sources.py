@@ -11,6 +11,7 @@
 import os
 import sys
 import configparser
+from typing import Counter
 
 
 def get_auth():
@@ -30,7 +31,7 @@ def user_agree_to_reset(src_file):
     return r != 'n'
 
 
-class SourcesBase():
+class SourcesBase:
     def __init__(self):
         self.os_version_file = '/etc/os-version'
         self.os_edition_name = ('Community', 'Home', 'Professional')
@@ -48,7 +49,7 @@ class SourcesBase():
             return cf.get('Version', 'EditionName')
 
     def get_current_sources(self):
-        return self.get_sources_content(self.src_file)
+        return self.get_sources_content()
 
     def default_sources_should_be(self):
         return ''
@@ -58,13 +59,18 @@ class SourcesBase():
             src.write(self.default_sources_should_be())
             self.reset = True
             print(self.src_file, '重置成功')
-
-    def get_sources_content(self, src_file):
+    
+    def get_sources_content(self):
+        content = ""
         try:
-            with open(src_file) as src:
-                content = src.read()
+            with open(self.src_file) as src:
+                for line in src.readlines():
+                    line_strip = line.strip()
+                    if line_strip.startswith("#"):
+                        continue
+                    content += line_strip
         except FileNotFoundError:
-            print(src_file, '文件不存在')
+            print(self.src_file, '文件不存在')
         else:
             return content
 
