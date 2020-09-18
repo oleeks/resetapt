@@ -33,9 +33,6 @@ def user_agree_to_reset(src_file):
 class SourcesBase():
     def __init__(self):
         self.os_version_file = '/etc/os-version'
-        self.src_sources_list = '/etc/apt/sources.list'
-        self.src_appstore_list = '/etc/apt/sources.list.d/appstore.list'
-        self.src_printer_list = '/etc/apt/sources.list.d/printer.list'
         self.os_edition_name = ('Community', 'Home', 'Professional')
         self.os_edition = self.get_os_edition_name()
         self.src_file = ''
@@ -75,7 +72,7 @@ class SourcesBase():
 class DefaultSources(SourcesBase):
     def __init__(self):
         super().__init__()
-        self.src_file = self.src_sources_list
+        self.src_file = '/etc/apt/sources.list'
 
     def default_sources_should_be(self):
         if (self.os_edition == self.os_edition_name[0]):
@@ -97,7 +94,7 @@ class DefaultSources(SourcesBase):
 class AppstoreSources(SourcesBase):
     def __init__(self):
         super().__init__()
-        self.src_file = self.src_appstore_list
+        self.src_file = '/etc/apt/sources.list.d/appstore.list'
 
     def default_sources_should_be(self):
         if (self.os_edition == self.os_edition_name[0]):
@@ -114,7 +111,7 @@ class AppstoreSources(SourcesBase):
 class PrinterSources(SourcesBase):
     def __init__(self):
         super().__init__()
-        self.src_file = self.src_printer_list
+        self.src_file = '/etc/apt/sources.list.d/printer.list'
 
     def default_sources_should_be(self):
         if (self.os_edition == self.os_edition_name[0]):
@@ -146,7 +143,7 @@ def main():
     detect_and_reset(src_printer)
     if (src_default.reset or src_appstore.reset or src_printer.reset):
         os.system('apt update -y && apt upgrade -y')
-    input('按任意键退出')
+    input('按回车键退出')
 
 
 if __name__ == '__main__':
