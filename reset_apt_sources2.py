@@ -47,7 +47,7 @@ class ResetAptSources:
         euid = os.geteuid()
         if euid != 0:
             args = ['sudo', sys.executable] + sys.argv + [os.environ]
-            # replaces the currently-running process with the sudo
+            # replaces the currently-running process with the seixtudo
             os.execlpe('sudo', *args)
 
     def get_os_edition_name(self):
